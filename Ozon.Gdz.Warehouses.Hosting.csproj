@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.43.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.3" />
+    <PackageReference Include="Ozon.Gdz.Platform.Auth" Version="2.3.799" />
+    <PackageReference Include="Ozon.Gdz.Platform.Grpc" Version="2.3.799" />
+    <PackageReference Include="Ozon.Gdz.Platform.Hosting" Version="2.3.799" />
+    <PackageReference Include="Ozon.Gdz.Platform.Serialization.Kafka" Version="2.3.799" />
+    <PackageReference Include="Ozon.Gdz.Platform.Metrics" Version="2.3.799" />
+    <PackageReference Include="Ozon.Platform" Version="6.1.1.2540" />
+    <PackageReference Include="Ozon.Platform.Data" Version="6.1.1.2540" />
+    <PackageReference Include="Ozon.Platform.Data.Postgres" Version="6.1.1.2540" />
+    <PackageReference Include="Ozon.Platform.ServiceDiscovery" Version="6.1.1.2540" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ozon.Gdz.Warehouses.Api\Ozon.Gdz.Warehouses.Api.csproj" />
+    <ProjectReference Include="..\Ozon.Gdz.Warehouses.Persistence\Ozon.Gdz.Warehouses.Persistence.csproj" />
+    <ProjectReference Include="..\Ozon.Gdz.Warehouses.Services\Ozon.Gdz.Warehouses.Services.csproj" />
+  </ItemGroup>
+
+</Project>

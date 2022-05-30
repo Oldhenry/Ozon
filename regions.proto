@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package ozon.gdz.regions;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Ozon.Gdz.Warehouses.Contracts.Regions";
+
+service RegionsService {
+  rpc CreateRegion (CreateRegionRequest) returns (CreateRegionResponse);
+  rpc ListRegions (ListRegionsRequest) returns (ListRegionsResponse);
+  rpc UpdateRegion (UpdateRegionRequest) returns (UpdateRegionResponse);
+  rpc DeleteRegions (DeleteRegionsRequest) returns (DeleteRegionsResponse);
+}
+
+message Region {
+  int64 region_id = 1;
+  string name = 2;
+  string title = 3;
+  google.protobuf.Int64Value parent_id = 4;
+  int64 cluster_id = 5;
+  bool update_priorities_enabled = 6;
+  string edited_by = 7;
+  google.protobuf.Timestamp updated = 8;
+}
+
+message CreateRegionRequest {
+  int64 region_id = 1;
+  string name = 2;
+  string title = 3;
+  google.protobuf.Int64Value parent_id = 4;
+  int64 cluster_id = 5;
+  bool update_priorities_enabled = 6;
+}
+
+message CreateRegionResponse {
+}
+
+message ListRegionsRequest {
+  repeated int64 region_ids = 1;
+}
+
+message ListRegionsResponse {
+  repeated Region regions = 1;
+}
+
+message UpdateRegionRequest {
+  message UpdateRegion {
+    int64 region_id = 1;
+    string name = 2;
+    string title = 3;
+    google.protobuf.Int64Value parent_id = 4;
+    int64 cluster_id = 5;
+    bool update_priorities_enabled = 6;
+  }
+
+  UpdateRegion region = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateRegionResponse {
+}
+
+message DeleteRegionsRequest {
+  repeated int64 region_ids = 1;
+}
+
+message DeleteRegionsResponse {
+}

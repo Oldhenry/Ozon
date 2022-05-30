@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package ozon.gdz.warehouses;
+
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Ozon.Gdz.Warehouses.Contracts";
+
+service WarehousesService {
+    rpc CreateWarehouse (CreateWarehouseRequest) returns (CreateWarehouseResponse);
+
+    rpc ListWarehouses (ListWarehousesRequest) returns (ListWarehousesResponse);
+
+    rpc ListWarehousesV2 (ListWarehousesRequestV2) returns (ListWarehousesResponse);
+
+    rpc ListStorageWarehouses (ListStorageWarehousesRequest) returns (ListStorageWarehousesResponse);
+
+    rpc UpdateWarehouses (UpdateWarehouseRequest) returns (UpdateWarehouseResponse);
+
+    rpc ListWarehouseTypes (ListWarehouseTypesRequest) returns (ListWarehouseTypesResponse);
+
+    rpc ListRegions (ListRegionsRequest) returns (ListRegionsResponse);
+
+    rpc ListSaleRegions (ListSaleRegionsRequest) returns (ListSaleRegionsResponse);
+
+    rpc ListAutoReplenishmentWarehouses (ListAutoReplenishmentWarehousesRequest) returns (ListWarehousesResponse);
+
+    rpc ListWarehousesDetails (ListWarehousesDetailsRequest) returns (ListWarehousesDetailsResponse);
+}
+
+message CreateWarehouseRequest {
+    int64 warehouse_id = 1;
+    string name = 2;
+    google.protobuf.Int64Value region_id = 3;
+    int64 rezon_id = 4;
+    int64 metazon_id = 5;
+    string address = 6;
+    google.protobuf.StringValue gln = 7;
+    int64 type_id = 8;
+    WarehouseCharacteristics characteristics = 9;
+}
+
+message CreateWarehouseResponse {
+}
+
+message ListWarehousesRequest {
+    repeated int64 type_ids = 1;
+    google.protobuf.StringValue search_name = 2;
+}
+
+message ListWarehousesResponse {
+    repeated Warehouse warehouses = 1;
+}
+
+message ListStorageWarehousesRequest {
+}
+
+message ListStorageWarehousesResponse {
+    repeated Warehouse warehouses = 1;
+}
+
+message Warehouse {
+    int64 warehouse_id = 1;
+    string name = 2;
+    reserved 3;
+    int64 rezon_id = 4;
+    int64 metazon_id = 5;
+    string address = 6;
+    google.protobuf.StringValue gln = 7;
+    int64 type_id = 8;
+    google.protobuf.Int64Value goodzon_id = 9;
+    WarehouseCharacteristics characteristics = 10;
+}
+
+message UpdateWarehouseRequest {
+    int64 warehouse_id = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.Int64Value type_id = 3;
+    google.protobuf.Int64Value region_id = 4;
+    google.protobuf.StringValue gln = 5;
+    string address = 6;
+    WarehouseCharacteristics characteristics = 7;
+}
+
+message UpdateWarehouseResponse {
+}
+
+message ListWarehouseTypesRequest {
+}
+
+message ListWarehouseTypesResponse {
+    repeated WarehouseType warehouseTypes = 1;
+
+    message WarehouseType {
+        int64 warehouse_type_id = 1;
+        string name = 2;
+    }
+}
+
+message ListRegionsRequest {
+  repeated int64 warehouse_ids = 1;
+}
+
+message ListRegionsResponse {
+    repeated Region regions = 1;
+
+    message Region {
+        int64 region_id = 1;
+        string name = 2;
+        string title = 3;
+        google.protobuf.Int64Value parent_id = 4;
+        bool update_priorities_enabled = 5;
+    }
+}
+
+message ListSaleRegionsRequest {
+}
+
+message ListSaleRegionsResponse {
+    repeated WarehouseSaleRegions warehouse_sale_regions = 1;
+
+    message WarehouseSaleRegions {
+        int64 warehouse_id = 1;
+        repeated int64 sale_region_ids = 2;
+    }
+}
+
+message ClearWrongWarehousesGlnRequest {
+}
+
+message ListAutoReplenishmentWarehousesRequest {
+}
+
+message ListWarehousesDetailsRequest {
+  repeated int64 warehouse_ids = 1;
+}
+
+message ListWarehousesDetailsResponse {
+  repeated WarehouseDetails warehouses_details = 1;
+}
+
+message WarehouseDetails {
+  Warehouse warehouse = 1;
+  WarehouseAttributes attributes = 2;
+}
+
+message WarehouseAttributes {
+  bool is_express = 1;
+}
+
+message ListWarehousesRequestV2 {
+  repeated WarehouseType warehouse_types = 1;
+  google.protobuf.StringValue search_name = 2;
+}
+
+message WarehouseCharacteristics {
+  bool barcode_only = 1;
+  bool wms_system = 2;
+  bool transit_warehouse = 3;
+  bool refund_warehouse = 4;
+  bool auto_replenishment = 5;
+  bool closed = 6;
+}
+
+enum WarehouseType
+{
+  WAREHOUSE_TYPE_UNSPECIFIED = 0;
+  WAREHOUSE_TYPE_AUTO_REPLENISHMENT = 1;
+  WAREHOUSE_TYPE_MANUAL_REPLENISHMENT = 2;
+  WAREHOUSE_TYPE_CLOSED_FOR_REPLENISHMENT = 3;
+  WAREHOUSE_TYPE_RETURNABLE = 4;
+  WAREHOUSE_TYPE_DEFECT = 5;
+  WAREHOUSE_TYPE_OTHER = 6;
+  WAREHOUSE_TYPE_DISTRIBUTION_CENTER = 7;
+}
+
+enum WarehouseNewType {
+  WAREHOUSE_NEW_TYPE_UNSPECIFIED = 0;
+  WAREHOUSE_NEW_TYPE_FULFILLMENT = 1;
+  WAREHOUSE_NEW_TYPE_DISTRIBUTION_CENTER = 2;
+  WAREHOUSE_NEW_TYPE_SORTING_CENTER = 3;
+  WAREHOUSE_NEW_TYPE_DARK_STORE = 4;
+  WAREHOUSE_NEW_TYPE_UNDEFINED = 5;
+}
+
+enum WarehouseAssignment {
+  WAREHOUSE_ASSIGNMENT_UNSPECIFIED = 0;
+  WAREHOUSE_ASSIGNMENT_STORAGE = 1;
+  WAREHOUSE_ASSIGNMENT_REFUND = 2;
+  WAREHOUSE_ASSIGNMENT_DEFECT_STORAGE = 3;
+}
+
+enum WarehouseManagementSystem {
+  WAREHOUSE_MANAGEMENT_SYSTEM_UNSPECIFIED = 0;
+  WAREHOUSE_MANAGEMENT_SYSTEM_REZON = 1;
+  WAREHOUSE_MANAGEMENT_SYSTEM_WMS = 2;
+}
