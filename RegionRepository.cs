@@ -2,15 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Npgsql;
-using Ozon.Gdz.Platform.Primitives;
-using Ozon.Gdz.Warehouses.Contracts;
-using Ozon.Gdz.Warehouses.Model;
-using Ozon.Platform.Data.Abstractions;
 
-namespace Ozon.Gdz.Warehouses.Repository;
 
 public sealed class RegionRepository : IRegionRepository
 {
