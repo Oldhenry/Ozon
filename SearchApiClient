@@ -1,0 +1,878 @@
+
+using System.Globalization;
+
+using Instruments.Observability.SearchApi.Observability.Logging;
+
+using Instruments.Observability.SearchApi.Observability.Logging.Models;
+
+using Microsoft.AspNetCore.WebUtilities;
+
+using SearchApi.ClientDtos;
+
+using SearchApi.ClientDtos.Query;
+
+using SearchApi.ClientDtos.Query.FullText;
+
+using SearchApi.ClientDtos.Query.Logical;
+
+using SearchApi.ClientDtos.Query.Template;
+
+using SearchApi.ClientDtos.Query.Through;
+
+using SearchApi.SearchApiClient.Models;
+
+using SearchApi.SearchApiClient.Models.Responses;
+
+using SearchApi.SharedInterfacesAndModels;
+
+using SearchApi.Utils;
+
+ 
+
+namespace SearchApi.SearchApiClient
+
+{
+
+    /// <summary>
+
+    /// Клиент доступа к api SearchApi сервиса
+
+    /// </summary>
+
+    public sealed class SearchApiClient
+
+    {
+
+        private readonly SearchApiClientConfiguration _searchApiClientConfiguration;
+
+        private readonly ILoggerWrapper<SearchApiClient> _logger;
+
+        private const string CertHeaderValue = "x-forwarded-client-cert-info";
+
+        private const string NotImplemented = "hasn't implementation";
+
+        private const string ControllerName = "SqlQuery";
+
+ 
+
+        private readonly HttpClient _httpClient;
+
+        private readonly string _searchApiHost;
+
+ 
+
+        /// <summary>
+
+        /// Конструктор с зависимостями
+
+        /// </summary>
+
+        public SearchApiClient(
+
+            SearchApiClientConfiguration searchApiClientConfiguration,
+
+            ILoggerWrapper<SearchApiClient> logger)
+
+        {
+
+            _searchApiClientConfiguration = searchApiClientConfiguration;
+
+            _logger = logger;
+
+            _searchApiHost =
+
+                $"{BaseUrlConstructor.FormatHostNameUnsafe(searchApiClientConfiguration.HostConfiguration)}/api/";
+
+ 
+
+            var handler = new HttpClientHandler
+
+            {
+
+                ServerCertificateCustomValidationCallback = delegate { return true; }
+
+            };
+
+ 
+
+            _httpClient = new HttpClient(handler);
+
+        }
+
+ 
+
+        #region Raw
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса сырого поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendRawQueryAsync(
+
+            string query,
+
+            string instance,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            SendRawQueryAsync(new SqlQuerySendDto(query, default, instance, true),
+
+                thumbprintCertificate, apiVersion, cancellationToken);
+
+ 
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendRawQueryAsync(
+
+            SqlQuerySendDto query,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            PostAsync(
+
+                query,
+
+                WebApiQueryType.RawSql,
+
+                apiVersion,
+
+                thumbprintCertificate,
+
+                cancellationToken);
+
+ 
+
+        #endregion
+
+ 
+
+        #region Through
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса сквозного поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendThroughQueryAsync(
+
+            List<string> selectColumnList,
+
+            List<ThroughModelSearchParameterDto> constraints,
+
+            DateTime timeFrom,
+
+            DateTime timeTo,
+
+            AdditionalQueryParametersDto additionalParameters,
+
+            SourceConstraintsDto sourceConstraints,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            SendThroughQueryAsync(
+
+                new ThroughModelSearchParametersDto(
+
+                    selectColumnList,
+
+                    constraints,
+
+                    timeFrom,
+
+                    timeTo,
+
+                    additionalParameters,
+
+                    sourceConstraints),
+
+                thumbprintCertificate,
+
+                apiVersion,
+
+                cancellationToken);
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса сквозного поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendThroughQueryAsync(
+
+            ThroughModelSearchParametersDto query,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            PostAsync(
+
+                query,
+
+                WebApiQueryType.Through,
+
+                apiVersion,
+
+                thumbprintCertificate,
+
+                cancellationToken);
+
+ 
+
+        #endregion
+
+ 
+
+        #region Logical
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса логического поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendLogicalQueryAsync(
+
+            List<string> selectColumnList,
+
+            List<LogicalModelSearchParameterDto> constraints,
+
+            DateTime timeFrom,
+
+            DateTime timeTo,
+
+            AdditionalQueryParametersDto additionalParameters,
+
+            SourceConstraintsDto sourceConstraints,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            SendLogicalQueryAsync(
+
+                new LogicalModelSearchParametersDto(
+
+                    selectColumnList,
+
+                    constraints,
+
+                    timeFrom,
+
+                    timeTo,
+
+                    additionalParameters,
+
+                    sourceConstraints
+
+                ),
+
+                thumbprintCertificate,
+
+                apiVersion,
+
+                cancellationToken);
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса логического поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendLogicalQueryAsync(
+
+            LogicalModelSearchParametersDto query,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            PostAsync(
+
+                query,
+
+                WebApiQueryType.Logical,
+
+                apiVersion,
+
+                thumbprintCertificate,
+
+                cancellationToken);
+
+ 
+
+        #endregion
+
+ 
+
+        #region FullText
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса полнотекстового поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendFullTextQueryAsync(
+
+            List<string> selectColumnList,
+
+            string searchString,
+
+            DateTime timeFrom,
+
+            DateTime timeTo,
+
+            AdditionalQueryParametersDto additionalParameters,
+
+            SourceConstraintsDto sourceConstraints,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            SendFullTextQueryAsync(
+
+                new FullTextModelSearchParametersDto(
+
+                    selectColumnList,
+
+                    searchString,
+
+                    timeFrom,
+
+                    timeTo,
+
+                    additionalParameters,
+
+                    sourceConstraints
+
+                ),
+
+                thumbprintCertificate,
+
+                apiVersion,
+
+                cancellationToken);
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки запроса полнотекстового поиска
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendFullTextQueryAsync(
+
+            FullTextModelSearchParametersDto query,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            PostAsync(
+
+                query,
+
+                WebApiQueryType.FullText,
+
+                apiVersion,
+
+                thumbprintCertificate,
+
+                cancellationToken);
+
+ 
+
+        #endregion
+
+ 
+
+        #region Template
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки шаблонного запроса
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendQueryTemplateAsync(
+
+            string templateName,
+
+            Dictionary<string, object> parameters,
+
+            AdditionalQueryParametersDto additionalParameters,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            SendQueryTemplateAsync(
+
+                new TemplateModelSearchParametersDto(
+
+                    templateName,
+
+                    parameters,
+
+                    additionalParameters
+
+                ),
+
+                thumbprintCertificate,
+
+                apiVersion,
+
+                cancellationToken);
+
+ 
+
+        /// <summary>
+
+        /// Метод для отправки шаблонного запроса
+
+        /// </summary>
+
+        public Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> SendQueryTemplateAsync(
+
+            TemplateModelSearchParametersDto query,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken) =>
+
+            PostAsync(
+
+                query,
+
+                WebApiQueryType.Template,
+
+                apiVersion,
+
+                thumbprintCertificate,
+
+                cancellationToken);
+
+ 
+
+        #endregion
+
+ 
+
+        /// <summary>
+
+        /// Метод для итерационного получения результатов поиска по итератору
+
+        /// </summary>
+
+        public async Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> GetLastPortionAsync(
+
+            string nextIterator,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken)
+
+        {
+
+            var delayCounter = new SearchApiClientDelayCounter();
+
+            var currentIterator = nextIterator;
+
+            var wasResults = false;
+
+ 
+
+            while (true)
+
+            {
+
+                await Task.Delay(delayCounter.GetDelayInMilliseconds(wasResults), cancellationToken);
+
+ 
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+ 
+
+                var response = await GetQueryResultAsync(currentIterator, thumbprintCertificate, apiVersion, cancellationToken);
+
+ 
+
+                wasResults = response.Payload?.Data?.Values?.Any() ?? false;
+
+ 
+
+                if (string.IsNullOrWhiteSpace(response.Payload?.Data?.NextIterator))
+
+                {
+
+                    return response;
+
+                }
+
+ 
+
+                currentIterator = response.Payload?.Data?.NextIterator;
+
+            }
+
+        }
+
+ 
+
+        /// <summary>
+
+        /// Метод для получения результатов поиска всех итераций
+
+        /// </summary>
+
+        public async Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> GetAllPortionsResultAsync(
+
+            ClientResultDtoWithHttpStatus<SqlQueryResultDto> initialResult,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken)
+
+        {
+
+            var delayCounter = new SearchApiClientDelayCounter();
+
+            var currentIterator = initialResult.Payload?.Data?.NextIterator;
+
+            var counter = 0;
+
+            var wasResults = false;
+
+            List<List<object>> values = null;
+
+            var lastResponse = initialResult;
+
+ 
+
+            while (!string.IsNullOrWhiteSpace(currentIterator) && counter < _searchApiClientConfiguration.MaxIterationCount)
+
+            {
+
+                try
+
+                {
+
+                    await Task.Delay(delayCounter.GetDelayInMilliseconds(wasResults), cancellationToken);
+
+ 
+
+                    cancellationToken.ThrowIfCancellationRequested();
+
+ 
+
+                    lastResponse = await GetQueryResultAsync(
+
+                        currentIterator,
+
+                        thumbprintCertificate,
+
+                        apiVersion,
+
+                        cancellationToken);
+
+ 
+
+                    wasResults = lastResponse.Payload?.Data?.Values?.Any() ?? false;
+
+ 
+
+                    if (wasResults)
+
+                    {
+
+                        values ??= new List<List<object>>();
+
+                        values.AddRange(lastResponse.Payload.Data.Values);
+
+                    }
+
+ 
+
+                    currentIterator = lastResponse.Payload?.Data?.NextIterator;
+
+                    counter++;
+
+                }
+
+                catch(Exception exception)
+
+                {
+
+                    if (exception is OperationCanceledException)
+
+                   {
+
+                        _logger.LogError(LogExCode.Internal, p => p.SyncQueryWasCancelledMessage, LogDataType.Logs, LogType.Action);
+
+                    }
+
+                    await CancelQueryAsync(currentIterator, apiVersion, default);
+
+                    throw;
+
+                }
+
+            }
+
+ 
+
+            return new ClientResultDtoWithHttpStatus<SqlQueryResultDto>(
+
+                new ClientResultDto<SqlQueryResultDto>(
+
+                    lastResponse.Payload?.Description,
+
+                    new SqlQueryResultDto(
+
+                        lastResponse.Payload?.Data?.NextIterator,
+
+                        lastResponse.Payload?.Data?.State,
+
+                        lastResponse.Payload?.Data?.ErrorMessage,
+
+                        lastResponse.Payload?.Data?.Columns,
+
+                        values,
+
+                        lastResponse.Payload?.Data?.SourceQueries)),
+
+                lastResponse.HttpCode);
+
+        }
+
+ 
+
+        /// <summary>
+
+        /// Отмена запроса поиска по итератору
+
+        /// </summary>
+
+        public async Task<ClientResultDtoWithHttpStatus<bool?>> CancelQueryAsync(
+
+            string nextIterator,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken)
+
+        {
+
+            var requestParams = new Dictionary<string, string> {["iterator"] = nextIterator};
+
+            var result = await _httpClient.DeleteAsync(
+
+                GenerateUrl(WebApiQueryType.Cancel, apiVersion, requestParams),
+
+                cancellationToken);
+
+ 
+
+            return await DeserializeResponseAsync<bool?>(result);
+
+        }
+
+ 
+
+        /// <summary>
+
+        /// Метод для получения результатов поиска по итератору
+
+        /// </summary>
+
+        private async Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> GetQueryResultAsync(
+
+            string nextIterator,
+
+            string thumbprintCertificate,
+
+            double apiVersion,
+
+            CancellationToken cancellationToken)
+
+        {
+
+            var requestParams = new Dictionary<string, string> {["iterator"] = nextIterator};
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, GenerateUrl(WebApiQueryType.GetResult, apiVersion, requestParams)))
+
+            {
+
+                request.Headers.Add(CertHeaderValue, $"hash={thumbprintCertificate}");
+
+                var response = await _httpClient.SendAsync(request, cancellationToken);
+
+ 
+
+                return await DeserializeResponseAsync<SqlQueryResultDto>(response);
+
+            }
+
+        }
+
+ 
+
+        /// <summary>
+
+        /// Десериализатор
+
+        /// </summary>
+
+        private static async Task<ClientResultDtoWithHttpStatus<T>> DeserializeResponseAsync<T>(
+
+            HttpResponseMessage result)
+
+        {
+
+            var response =
+
+                new JsonSerializerGeneric().Deserialize<ClientResultDto<T>>(
+
+                    await result.Content.ReadAsStringAsync());
+
+ 
+
+            return new ClientResultDtoWithHttpStatus<T>(response, result.StatusCode);
+
+        }
+
+ 
+
+        private string GetHostWithApiVersion(double apiVersion) =>
+
+            _searchApiHost + $"v{apiVersion.ToString(new CultureInfo("EN-en"))}/";
+
+ 
+
+        private string GenerateUrl(
+
+            WebApiQueryType queryType,
+
+            double apiVersion,
+
+            IDictionary<string, string> requestParams = null)
+
+            => queryType switch
+
+            {
+
+                WebApiQueryType.RawSql => $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/Send",
+
+                WebApiQueryType.Through => $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/SendThrough",
+
+                WebApiQueryType.FullText => $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/SendFullText",
+
+                WebApiQueryType.Logical => $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/SendLogical",
+
+                WebApiQueryType.Template => $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/SendTemplate",
+
+                WebApiQueryType.GetResult => QueryHelpers.AddQueryString(
+
+                    $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/Get", requestParams),
+
+                WebApiQueryType.Cancel => QueryHelpers.AddQueryString(
+
+                    $"{GetHostWithApiVersion(apiVersion)}{ControllerName}/Cancel", requestParams),
+
+                _ => throw new NotImplementedException($"{queryType.ToString()} {NotImplemented}")
+
+            };
+
+ 
+
+        /// <summary>
+
+        /// Отправка запроса
+
+        /// </summary>
+
+        private async Task<ClientResultDtoWithHttpStatus<SqlQueryResultDto>> PostAsync(
+
+            object queryModel,
+
+            WebApiQueryType queryType,
+
+            double apiVersion,
+
+            string thumbprintCertificate,
+
+            CancellationToken cancellationToken)
+
+        {
+
+            var content = HttpJsonContent.Build(queryModel, true);
+
+            content.Headers.Add(CertHeaderValue, $"hash={thumbprintCertificate}");
+
+           
+
+            var response = await _httpClient.PostAsync(
+
+                GenerateUrl(queryType, apiVersion),
+
+                content, cancellationToken);
+
+ 
+
+            return await DeserializeResponseAsync<SqlQueryResultDto>(response);
+
+        }
+
+    }
+
+}
